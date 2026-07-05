@@ -427,4 +427,40 @@ function showParking(parking) {
   }, 80);
 }
 
-fun
+function saveAddr(val) {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  const p = JSON.parse(raw);
+  p.addr = val;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+}
+
+function clearParking() {
+  if (!confirm('Sei sicura di voler cancellare la posizione salvata?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  document.getElementById('parking-card').style.display = 'none';
+  document.getElementById('empty-state').style.display = 'block';
+  setStatus('');
+  if (marker && leafletMap) { leafletMap.removeLayer(marker); marker = null; }
+}
+
+function navigateToParking() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  const p = JSON.parse(raw);
+  const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const url = isIos
+    ? `maps://maps.apple.com/?daddr=${p.lat},${p.lon}`
+    : `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}&travelmode=walking`;
+  window.open(url, '_blank');
+}
+
+(function() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    try { showParking(JSON.parse(raw)); } catch(e) { localStorage.removeItem(STORAGE_KEY); }
+  }
+})();
+</script>
+</body>
+</html>
