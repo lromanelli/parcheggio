@@ -28,13 +28,12 @@ html, body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
 .status.ok { color: #2e7d32; }
 .card { background: #fff; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,.08); overflow: hidden; }
 .card-hdr { padding: 14px 16px 10px; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.card-label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
-.card-addr { font-size: 16px; font-weight: 600; color: #111; line-height: 1.4; border: none; background: none; padding: 0; width: 100%; font-family: inherit; cursor: text; }
-.card-addr:focus { outline: none; border-bottom: 2px solid #1a73e8; }
-.card-addr-hint { font-size: 11px; color: #aaa; margin-top: 2px; }
+.card-label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.card-addr { font-size: 16px; font-weight: 600; color: #111; line-height: 1.4; border: none; outline: none; width: 100%; min-height: 24px; word-break: break-word; cursor: text; }
+.card-addr:focus { border-bottom: 2px solid #1a73e8; }
+.card-addr-hint { font-size: 11px; color: #aaa; margin-top: 4px; }
 .card-time { font-size: 12px; color: #888; margin-top: 4px; }
 .clear-btn { background: none; border: none; color: #bbb; font-size: 20px; cursor: pointer; padding: 4px; flex-shrink: 0; }
-.clear-btn:hover { color: #d32f2f; }
 #map { height: 240px; }
 .nav-btn { width: calc(100% - 32px); margin: 0 16px 16px; padding: 14px; background: #2e7d32; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 3px 10px rgba(46,125,50,.35); }
 .nav-btn:active { transform: scale(.97); }
@@ -58,9 +57,9 @@ html, body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     <div id="parking-card" style="display:none">
       <div class="card">
         <div class="card-hdr">
-          <div>
+          <div style="flex:1;min-width:0">
             <div class="card-label">Auto parcheggiata qui</div>
-            <input class="card-addr" id="card-addr" type="text" value="" oninput="saveAddr(this.value)">
+            <div class="card-addr" id="card-addr" contenteditable="true" oninput="saveAddr(this.textContent)"></div>
             <div class="card-addr-hint">✏️ Tocca per correggere</div>
             <div class="card-time" id="card-time"></div>
           </div>
@@ -177,7 +176,7 @@ async function saveParking() {
 function showParking(parking) {
   document.getElementById('empty-state').style.display = 'none';
   document.getElementById('parking-card').style.display = 'block';
-  document.getElementById('card-addr').value = parking.addr;
+  document.getElementById('card-addr').textContent = parking.addr;
   var d = new Date(parking.ts);
   var dateStr = d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
   var timeStr = d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
@@ -190,8 +189,11 @@ function showParking(parking) {
       leafletMap.setView([parking.lat, parking.lon], 17);
       if (marker) leafletMap.removeLayer(marker);
     }
-    var carSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 72" width="40" height="72"><ellipse cx="20" cy="68" rx="14" ry="3.5" fill="rgba(0,0,0,0.22)"/><rect x="4" y="14" width="32" height="48" rx="8" fill="white" stroke="#ccc" stroke-width="1.5"/><path d="M9 14 Q9 4 20 3 Q31 4 31 14 Z" fill="white" stroke="#ccc" stroke-width="1.5"/><path d="M9 62 Q9 70 20 71 Q31 70 31 62 Z" fill="#e8e8e8" stroke="#ccc" stroke-width="1.5"/><path d="M11 15 Q11 24 20 25 Q29 24 29 15 Z" fill="#b8d8f0" opacity="0.85"/><path d="M11 56 Q11 63 20 63 Q29 63 29 56 Z" fill="#b8d8f0" opacity="0.7"/><rect x="10" y="26" width="20" height="28" rx="2" fill="#f5f5f5" stroke="#ddd" stroke-width="0.5"/><ellipse cx="15" cy="31" rx="3" ry="3.5" fill="#ddd"/><ellipse cx="25" cy="31" rx="3" ry="3.5" fill="#ddd"/><rect x="1" y="20" width="4" height="7" rx="2" fill="#e0e0e0" stroke="#bbb" stroke-width="0.8"/><rect x="35" y="20" width="4" height="7" rx="2" fill="#e0e0e0" stroke="#bbb" stroke-width="0.8"/><path d="M9 8 Q9 5 13 5 L13 9 Q11 9 9 8 Z" fill="#fffde7" stroke="#f9a825" stroke-width="0.5"/><path d="M31 8 Q31 5 27 5 L27 9 Q29 9 31 8 Z" fill="#fffde7" stroke="#f9a825" stroke-width="0.5"/><path d="M9 65 Q9 68 13 68 L13 64 Q11 64 9 65 Z" fill="#ffcdd2" stroke="#c62828" stroke-width="0.5"/><path d="M31 65 Q31 68 27 68 L27 64 Q29 64 31 65 Z" fill="#ffcdd2" stroke="#c62828" stroke-width="0.5"/><rect x="1" y="16" width="6" height="10" rx="2" fill="#333"/><rect x="33" y="16" width="6" height="10" rx="2" fill="#333"/><rect x="1" y="46" width="6" height="10" rx="2" fill="#333"/><rect x="33" y="46" width="6" height="10" rx="2" fill="#333"/></svg>';
-    var carIcon = L.divIcon({ html: '<div style="filter:drop-shadow(0 2px 5px rgba(0,0,0,.35))">' + carSvg + '</div>', className: '', iconSize: [40, 72], iconAnchor: [20, 64] });
+    var pinHtml = '<div style="display:flex;flex-direction:column;align-items:center">'
+      + '<div style="background:#1a73e8;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;border:3px solid white;box-shadow:0 3px 8px rgba(0,0,0,0.35)">🚗</div>'
+      + '<div style="width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:12px solid #1a73e8;margin-top:-1px"></div>'
+      + '</div>';
+    var carIcon = L.divIcon({ html: pinHtml, className: '', iconSize: [44, 58], iconAnchor: [22, 58] });
     marker = L.marker([parking.lat, parking.lon], { icon: carIcon }).addTo(leafletMap);
     leafletMap.invalidateSize();
   }, 80);
