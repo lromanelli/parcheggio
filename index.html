@@ -381,35 +381,44 @@ function showParking(parking) {
       if (marker) leafletMap.removeLayer(marker);
     }
 
-    const carSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 32" width="64" height="32">
+    const carSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 72" width="40" height="72">
       <!-- ombra -->
-      <ellipse cx="32" cy="30" rx="26" ry="3" fill="rgba(0,0,0,0.18)"/>
-      <!-- carrozzeria bassa -->
-      <rect x="4" y="17" width="56" height="11" rx="4" fill="#e8e8e8" stroke="#bbb" stroke-width="1"/>
-      <!-- tetto hatchback (profilo 208) -->
-      <path d="M14 17 Q18 6 28 5 L42 5 Q52 5 54 17 Z" fill="white" stroke="#bbb" stroke-width="1"/>
-      <!-- finestrino sx -->
-      <path d="M16 16 Q19 9 27 8 L27 16 Z" fill="#a8d4f5" opacity="0.8"/>
-      <!-- finestrino dx -->
-      <path d="M29 8 L39 8 Q45 8 47 16 L29 16 Z" fill="#a8d4f5" opacity="0.8"/>
-      <!-- montante centrale -->
-      <rect x="27.5" y="8" width="1.5" height="8" fill="#bbb"/>
-      <!-- ruota sx -->
-      <circle cx="15" cy="27" r="5" fill="#444"/>
-      <circle cx="15" cy="27" r="2.5" fill="#ccc"/>
-      <!-- ruota dx -->
-      <circle cx="49" cy="27" r="5" fill="#444"/>
-      <circle cx="49" cy="27" r="2.5" fill="#ccc"/>
-      <!-- fanale ant -->
-      <rect x="57" y="19" width="3" height="4" rx="1" fill="#fffbe6" stroke="#e0c000" stroke-width="0.5"/>
-      <!-- fanale post -->
-      <rect x="4" y="19" width="3" height="4" rx="1" fill="#ffcccc" stroke="#cc0000" stroke-width="0.5"/>
+      <ellipse cx="20" cy="68" rx="14" ry="3.5" fill="rgba(0,0,0,0.22)"/>
+      <!-- carrozzeria principale -->
+      <rect x="4" y="14" width="32" height="48" rx="8" fill="white" stroke="#ccc" stroke-width="1.5"/>
+      <!-- cofano anteriore (arrotondato, più stretto) -->
+      <path d="M9 14 Q9 4 20 3 Q31 4 31 14 Z" fill="white" stroke="#ccc" stroke-width="1.5"/>
+      <!-- cofano posteriore hatchback (taglio netto) -->
+      <path d="M9 62 Q9 70 20 71 Q31 70 31 62 Z" fill="#e8e8e8" stroke="#ccc" stroke-width="1.5"/>
+      <!-- parabrezza anteriore -->
+      <path d="M11 15 Q11 24 20 25 Q29 24 29 15 Z" fill="#b8d8f0" opacity="0.85"/>
+      <!-- lunotto posteriore hatchback (più largo) -->
+      <path d="M11 56 Q11 63 20 63 Q29 63 29 56 Z" fill="#b8d8f0" opacity="0.7"/>
+      <!-- tetto (zona centrale) -->
+      <rect x="10" y="26" width="20" height="28" rx="2" fill="#f5f5f5" stroke="#ddd" stroke-width="0.5"/>
+      <!-- poggiatesta x2 -->
+      <ellipse cx="15" cy="31" rx="3" ry="3.5" fill="#ddd"/>
+      <ellipse cx="25" cy="31" rx="3" ry="3.5" fill="#ddd"/>
+      <!-- specchietti laterali -->
+      <rect x="1" y="20" width="4" height="7" rx="2" fill="#e0e0e0" stroke="#bbb" stroke-width="0.8"/>
+      <rect x="35" y="20" width="4" height="7" rx="2" fill="#e0e0e0" stroke="#bbb" stroke-width="0.8"/>
+      <!-- fanali anteriori (LED stile 208) -->
+      <path d="M9 8 Q9 5 13 5 L13 9 Q11 9 9 8 Z" fill="#fffde7" stroke="#f9a825" stroke-width="0.5"/>
+      <path d="M31 8 Q31 5 27 5 L27 9 Q29 9 31 8 Z" fill="#fffde7" stroke="#f9a825" stroke-width="0.5"/>
+      <!-- fanali posteriori -->
+      <path d="M9 65 Q9 68 13 68 L13 64 Q11 64 9 65 Z" fill="#ffcdd2" stroke="#c62828" stroke-width="0.5"/>
+      <path d="M31 65 Q31 68 27 68 L27 64 Q29 64 31 65 Z" fill="#ffcdd2" stroke="#c62828" stroke-width="0.5"/>
+      <!-- ruote -->
+      <rect x="1" y="16" width="6" height="10" rx="2" fill="#333"/>
+      <rect x="33" y="16" width="6" height="10" rx="2" fill="#333"/>
+      <rect x="1" y="46" width="6" height="10" rx="2" fill="#333"/>
+      <rect x="33" y="46" width="6" height="10" rx="2" fill="#333"/>
     </svg>`;
     const carIcon = L.divIcon({
       html: `<div style="filter:drop-shadow(0 2px 5px rgba(0,0,0,.35))">${carSvg}</div>`,
       className: '',
-      iconSize: [64, 32],
-      iconAnchor: [32, 30]
+      iconSize: [40, 72],
+      iconAnchor: [20, 64]
     });
     marker = L.marker([parking.lat, parking.lon], { icon: carIcon }).addTo(leafletMap);
     leafletMap.invalidateSize();
@@ -417,33 +426,4 @@ function showParking(parking) {
 }
 
 function clearParking() {
-  if (!confirm('Sei sicura di voler cancellare la posizione salvata?')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  document.getElementById('parking-card').style.display = 'none';
-  document.getElementById('empty-state').style.display = 'block';
-  setStatus('');
-  if (marker && leafletMap) { leafletMap.removeLayer(marker); marker = null; }
-}
-
-function navigateToParking() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return;
-  const p = JSON.parse(raw);
-  // iOS: Apple Maps; Android: Google Maps
-  const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const url = isIos
-    ? `maps://maps.apple.com/?daddr=${p.lat},${p.lon}`
-    : `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}&travelmode=walking`;
-  window.open(url, '_blank');
-}
-
-// Load on startup
-(function() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (raw) {
-    try { showParking(JSON.parse(raw)); } catch(e) { localStorage.removeItem(STORAGE_KEY); }
-  }
-})();
-</script>
-</body>
-</html>
+  if (!confirm('Sei sicura di voler cancellare la posizione salvata?')
